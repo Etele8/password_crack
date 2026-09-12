@@ -43,10 +43,16 @@ if [ ! -x princeprocessor/src/pp64.bin ]; then
 fi
 
 # ================= LOCATE HASHCAT =================
-if   command -v hashcat >/dev/null 2>&1;        then HC=hashcat
-elif [ -x hashcat/hashcat ];                    then HC=./hashcat/hashcat
-elif ls hashcat-*/hashcat.bin >/dev/null 2>&1;  then HC=$(ls hashcat-*/hashcat.bin | head -1)
-else echo "ERROR: hashcat not found"; exit 1; fi
+cd "${SLURM_SUBMIT_DIR:-$(pwd)}"          # run from where you submitted
+if ! [ -x hashcat/hashcat ] && ! command -v hashcat >/dev/null 2>&1; then
+  echo "building hashcat from source..."
+  [ -d hashcat ] || git clone --depth 1 https://github.com/hashcat/hashcat.git
+  make -j"$(nproc)" -C hashcat || { echo "ERROR: hashcat build failed (need git/make/gcc)"; exit 1; }
+fi
+if   [ -x hashcat/hashcat ];              then HC="$(pwd)/hashcat/hashcat"
+elif command -v hashcat >/dev/null 2>&1;  then HC=hashcat
+else echo "ERROR: hashcat not found after build"; exit 1; fi
+echo "hashcat: $HC"; "$HC" --version
 
 # ================= VERIFY INPUTS =================
 HASHES=remaining_hashes.txt; ROCKYOU=rockyou.txt; ONERULE=OneRuleToRuleThemStill.rule
