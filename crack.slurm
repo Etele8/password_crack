@@ -43,10 +43,10 @@ if [ ! -x princeprocessor/src/pp64.bin ]; then
 fi
 
 # ================= LOCATE HASHCAT =================
-if command -v hashcat >/dev/null 2>&1;         then HC=hashcat
-elif ls hashcat-*/hashcat.bin >/dev/null 2>&1; then HC=$(ls hashcat-*/hashcat.bin | head -1)
-else echo "ERROR: hashcat not found ('module load hashcat' or scp a binary)."; exit 1; fi
-echo "hashcat: $HC"; $HC -I 2>/dev/null | grep -iE "Backend Device ID|Name|Type" | head
+if   command -v hashcat >/dev/null 2>&1;        then HC=hashcat
+elif [ -x hashcat/hashcat ];                    then HC=./hashcat/hashcat
+elif ls hashcat-*/hashcat.bin >/dev/null 2>&1;  then HC=$(ls hashcat-*/hashcat.bin | head -1)
+else echo "ERROR: hashcat not found"; exit 1; fi
 
 # ================= VERIFY INPUTS =================
 HASHES=remaining_hashes.txt; ROCKYOU=rockyou.txt; ONERULE=OneRuleToRuleThemStill.rule
