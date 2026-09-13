@@ -46,7 +46,7 @@ fi
 cd "${SLURM_SUBMIT_DIR:-$(pwd)}"          # run from where you submitted
 if ! [ -x hashcat/hashcat ] && ! command -v hashcat >/dev/null 2>&1; then
   echo "building hashcat from source..."
-  [ -d hashcat ] || git clone --depth 1 https://github.com/hashcat/hashcat.git
+  [ -d hashcat ] || git clone --depth 1 --branch v6.2.6 https://github.com/hashcat/hashcat.git
   make -j"$(nproc)" -C hashcat || { echo "ERROR: hashcat build failed (need git/make/gcc)"; exit 1; }
 fi
 if   [ -x hashcat/hashcat ];              then HC="$(pwd)/hashcat/hashcat"
